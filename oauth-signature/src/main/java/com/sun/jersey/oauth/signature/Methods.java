@@ -41,7 +41,8 @@
 package com.sun.jersey.oauth.signature;
 
 import java.util.HashMap;
-import com.sun.jersey.spi.service.ServiceFinder;
+import org.glassfish.jersey.internal.ServiceFinder; //import com.sun.jersey.spi.service.ServiceFinder;
+
 
 /**
  * Loads and provides instances of OAuth signature methods.

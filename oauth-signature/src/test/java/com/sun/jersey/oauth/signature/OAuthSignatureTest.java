@@ -40,11 +40,14 @@
 
 package com.sun.jersey.oauth.signature;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.AbstractMultivaluedMap;  //import com.sun.jersey.core.util.MultivaluedMapImpl;
+import javax.ws.rs.core.MultivaluedMap;          //import com.sun.jersey.core.util.MultivaluedMapImpl;
 import junit.framework.TestCase;
 
 /**
@@ -57,7 +60,7 @@ public class OAuthSignatureTest extends TestCase {
     }
 
     public void testNormalizeParameters() {
-        final MultivaluedMapImpl params = new MultivaluedMapImpl();
+        final MultivaluedMap<String,String> params = new AbstractMultivaluedMap<String,String>(new HashMap<String,List<String>>()){};
         params.add("org-country", "US");
         params.add("org", "acme");
         params.add("a", "b");
@@ -98,7 +101,7 @@ public class OAuthSignatureTest extends TestCase {
     }
 
     public void testNullParamValue() {
-        final MultivaluedMapImpl params = new MultivaluedMapImpl();
+        final MultivaluedMap<String,String> params = new AbstractMultivaluedMap<String,String>(new HashMap<String,List<String>>()){};        
         params.add("org-country", "US");
         params.put("org", Arrays.asList(new String[] {null}));
         params.add("a", "b");

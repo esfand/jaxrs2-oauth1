@@ -40,11 +40,11 @@
 
 package com.sun.jersey.oauth.signature;
 
-import com.sun.jersey.api.uri.UriComponent;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import org.glassfish.jersey.uri.UriComponent; //import com.sun.jersey.api.uri.UriComponent;
 
 /**
  * A data structure class that represents OAuth protocol parameters.

@@ -40,7 +40,6 @@
 
 package com.sun.jersey.oauth.signature;
 
-import com.sun.jersey.api.uri.UriComponent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -49,6 +48,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import org.glassfish.jersey.uri.UriComponent; //import com.sun.jersey.api.uri.UriComponent;
 
 /**
  * Class used for processing an OAuth signature (signing or verifying).

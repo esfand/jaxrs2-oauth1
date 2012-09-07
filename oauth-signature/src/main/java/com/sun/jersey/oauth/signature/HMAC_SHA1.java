@@ -40,12 +40,12 @@
 
 package com.sun.jersey.oauth.signature;
 
-import com.sun.jersey.api.uri.UriComponent;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.glassfish.jersey.uri.UriComponent; //import com.sun.jersey.api.uri.UriComponent;
 
 /**
  * An OAuth signature method that implements HMAC-SHA1.

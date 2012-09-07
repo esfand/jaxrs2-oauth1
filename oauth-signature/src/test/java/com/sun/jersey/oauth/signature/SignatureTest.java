@@ -40,10 +40,10 @@
 
 package com.sun.jersey.oauth.signature;
 
-import com.sun.jersey.api.uri.UriComponent;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.glassfish.jersey.uri.UriComponent; //import com.sun.jersey.api.uri.UriComponent;
 
 /**
  * @author Paul C. Bryan <pbryan@sun.com>
