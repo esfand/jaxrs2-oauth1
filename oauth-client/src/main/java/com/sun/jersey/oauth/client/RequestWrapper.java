@@ -49,10 +49,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Providers;
-import com.sun.jersey.api.client.ClientRequest;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.signature.OAuthRequest;
 import java.net.URL;
+import java.util.HashMap;
+import javax.ws.rs.client.ClientRequestContext;
+                                                //import com.sun.jersey.api.client.ClientRequest;
+import javax.ws.rs.core.AbstractMultivaluedMap; //import com.sun.jersey.core.util.MultivaluedMapImpl; 
 
 /**
  * Implements the OAuth signature library Request interface, wrapping a Jersey
@@ -63,7 +65,7 @@ import java.net.URL;
 class RequestWrapper implements OAuthRequest {
 
     /** The wrapped Jersey client request. */
-    private final ClientRequest clientRequest;
+    private final ClientRequestContext clientRequest;
 
     /** The registered providers. */
     private final Providers providers;
@@ -72,7 +74,7 @@ class RequestWrapper implements OAuthRequest {
     private MultivaluedMap<String, String> parameters = null;
 
     private void setParameters() {
-        parameters = new MultivaluedMapImpl();
+        parameters = new AbstractMultivaluedMap<String,String>(new HashMap<String,List<String>>()){};
         parameters.putAll(RequestUtil.getQueryParameters(clientRequest));
         parameters.putAll(RequestUtil.getEntityParameters(clientRequest, providers));
     }
@@ -83,7 +85,7 @@ class RequestWrapper implements OAuthRequest {
      *
      * @param request the Jersey client request object to be wrapped.
      */
-    public RequestWrapper(final ClientRequest clientRequest, final Providers providers) {
+    public RequestWrapper(final ClientRequestContext clientRequest, final Providers providers) {
         this.clientRequest = clientRequest;
         this.providers = providers;
         setParameters(); // stored because parsing query/entity parameters too much work for each value-get
@@ -97,7 +99,7 @@ class RequestWrapper implements OAuthRequest {
     @Override
     public URL getRequestURL() {
         try {
-            final URI uri = clientRequest.getURI();
+            final URI uri = clientRequest.getUri();
             return uri.toURL();
         } catch (MalformedURLException ex) {
             Logger.getLogger(RequestWrapper.class.getName()).log(Level.SEVERE, null, ex);
@@ -120,8 +122,8 @@ class RequestWrapper implements OAuthRequest {
 
         ArrayList<String> list = new ArrayList();
 
-        for (Object header : clientRequest.getHeaders().get(name)) {
-            list.add(ClientRequest.getHeaderValue(header));
+        for (String header : clientRequest.getStringHeaders().get(name)) {
+            list.add(header);
         }
 
         return list;
