@@ -41,16 +41,19 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
-        <groupId>com.sun.jersey.contribs.jersey-oauth</groupId>
-        <artifactId>jersey-oauth</artifactId>
-        <version>1.14-SNAPSHOT</version>
+        <groupId>com.webwarp.jaxrs-oauth</groupId>
+        <artifactId>jaxrs2-oauth1</artifactId>
+        <version>2.0-SNAPSHOT</version>
     </parent>
-    <artifactId>oauth-tests</artifactId>
+    
+    <artifactId>oauth1-tests</artifactId>
     <packaging>pom</packaging>
-    <name>oauth-tests</name>
+    
+    <name>oauth1-tests</name>
 
     <properties>
         <pax-exam-version>1.2.3</pax-exam-version>
@@ -226,39 +229,39 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
-                  <execution>
-                    <id>test-compile</id>
-                    <phase>test-compile</phase>
-                    <goals>
-                      <goal>testCompile</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
                 </executions>
-              </plugin>
-              <plugin>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
-                  <execution>
-                    <id>process-test-resources</id>
-                    <phase>process-test-resources</phase>
-                    <goals>
-                      <goal>testResources</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>process-test-resources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
                 </executions>
-              </plugin>
-              <plugin>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <executions>
-                  <execution>
-                    <id>test</id>
-                    <phase>test</phase>
-                    <goals>
-                      <goal>test</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <!-- use pax exam maven plugin -->

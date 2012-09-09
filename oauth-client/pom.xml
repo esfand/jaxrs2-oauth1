@@ -52,7 +52,8 @@
     
     <artifactId>oauth1-client</artifactId>
     <packaging>jar</packaging>
-    <name>oauth-client</name>
+    
+    <name>oauth1-client</name>
 
     <profiles>
         <profile>
