@@ -40,7 +40,7 @@
 
 package com.sun.jersey.oauth.server.api.providers;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+//import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.server.spi.OAuthConsumer;
 import com.sun.jersey.oauth.server.spi.OAuthProvider;
 import com.sun.jersey.oauth.server.spi.OAuthToken;
@@ -48,6 +48,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.AbstractMultivaluedMap;
 import javax.ws.rs.ext.Provider;
 
 /** Default in-memory implementation of OAuthProvider. Stores consumers and tokens
@@ -257,7 +259,7 @@ public class DefaultOAuthProvider implements OAuthProvider {
         private final MultivaluedMap<String, String> attribs;
 
         protected Token(String token, String secret, String consumerKey, String callbackUrl,
-                Principal principal, Set<String> roles, MultivaluedMap<String, String> attributes) {
+                        Principal principal, Set<String> roles, MultivaluedMap<String, String> attributes) {
             this.token = token;
             this.secret = secret;
             this.consumerKey = consumerKey;
@@ -323,7 +325,14 @@ public class DefaultOAuthProvider implements OAuthProvider {
          * @return Cloned token with the principal and roles set.
          */
         protected Token authorize(Principal principal, Set<String> roles) {
-            return new Token(token, secret, consumerKey, callbackUrl, principal, roles == null ? Collections.<String>emptySet() : new HashSet<String>(roles), attribs);
+            return new Token(token, 
+                             secret, 
+                             consumerKey, 
+                             callbackUrl, 
+                             principal, 
+                             roles == null ? Collections.<String>emptySet() 
+                                           : new HashSet<String>(roles), 
+                             attribs);
         }
     }
 
@@ -334,46 +343,51 @@ public class DefaultOAuthProvider implements OAuthProvider {
         return new ImmutableMultiMap(source);
     }
 
-    private static class ImmutableMultiMap extends MultivaluedMapImpl {
+    private static class ImmutableMultiMap<K,V> extends AbstractMultivaluedMap<K,V> {
+        
         public static final ImmutableMultiMap EMPTY = new ImmutableMultiMap();
 
         private ImmutableMultiMap() {
+            super(new HashMap());
         }
 
-        ImmutableMultiMap(Map<String, List<String>> source) {
-            for (Map.Entry<String, List<String>> e : source.entrySet()) {
-                super.put(e.getKey(), e.getValue() == null ? Collections.<String>emptyList() : Collections.unmodifiableList(new ArrayList<String>(e.getValue())));
+        ImmutableMultiMap(Map<K, List<V>> source) {
+            super(new HashMap<K,List<V>>());
+            for (Map.Entry<K, List<V>> e : source.entrySet()) {
+                super.put(e.getKey(), 
+                          e.getValue() == null ? Collections.<V>emptyList() 
+                                               : Collections.unmodifiableList(new ArrayList<V>(e.getValue())));
             }
         }
 
         @Override
-        public List<String> put(String k, List<String> v) {
+        public List<V> put(K key, List<V> value) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Set<Entry<String, List<String>>> entrySet() {
+        public Set<Entry<K, List<V>>> entrySet() {
             return Collections.unmodifiableSet(super.entrySet());
         }
 
         @Override
-        public Set<String> keySet() {
+        public Set<K> keySet() {
             return Collections.unmodifiableSet(super.keySet());
         }
 
         @Override
-        public List<String> remove(Object o) {
+        public List<V> remove(Object key) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void putAll(Map<? extends String, ? extends List<String>> map) {
+        public void putAll(Map<? extends K, ? extends List<V>> m) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Collection<List<String>> values() {
-            return Collections.unmodifiableCollection(super.values());
+        public void clear() {
+            throw new UnsupportedOperationException();
         }
     }
 }

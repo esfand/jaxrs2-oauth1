@@ -49,8 +49,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MultivaluedMap;
-import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.oauth.signature.OAuthRequest;
+import javax.ws.rs.container.ContainerRequestContext;//import com.sun.jersey.api.core.HttpRequestContext;
 
 /**
  * Wraps a Jersey {@link HttpRequestContext} object, implementing the
@@ -61,13 +61,13 @@ import com.sun.jersey.oauth.signature.OAuthRequest;
  */
 public class OAuthServerRequest implements OAuthRequest {
 
-    private HttpRequestContext context;
+    private ContainerRequestContext context;
 
     private static HashSet<String> EMPTY_SET = new HashSet<String>();
 
     private static ArrayList<String> EMPTY_LIST = new ArrayList<String>();
 
-    public OAuthServerRequest(HttpRequestContext context) {
+    public OAuthServerRequest(ContainerRequestContext context) {
         this.context = context;
     }
 
@@ -79,8 +79,8 @@ public class OAuthServerRequest implements OAuthRequest {
     @Override
     public URL getRequestURL() {
         try {
-            return context.getRequestUri().toURL();
-        } catch (MalformedURLException ex) {
+            return context.getUriInfo().getRequestUri().toURL();
+        } catch (Exception/*MalformedURLException*/ ex) {
             Logger.getLogger(OAuthServerRequest.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
@@ -111,7 +111,7 @@ public class OAuthServerRequest implements OAuthRequest {
     @Override
     public Set<String> getParameterNames() {
         HashSet<String> n = new HashSet<String>();
-        n.addAll(keys(context.getQueryParameters()));
+        n.addAll(keys(context.getUriInfo().getQueryParameters()));
         n.addAll(keys(context.getFormParameters()));
         return n;
     }
@@ -119,14 +119,14 @@ public class OAuthServerRequest implements OAuthRequest {
     @Override
     public List<String> getParameterValues(String name) {
         ArrayList<String> v = new ArrayList<String>();
-        v.addAll(values(context.getQueryParameters(), name));
+        v.addAll(values(context.getUriInfo().getQueryParameters(), name));
         v.addAll(values(context.getFormParameters(), name));
         return v;
     }
 
     @Override
     public List<String> getHeaderValues(String name) {
-        return context.getRequestHeader(name);
+        return context.getHeaders().get(name);
     }
 
     @Override

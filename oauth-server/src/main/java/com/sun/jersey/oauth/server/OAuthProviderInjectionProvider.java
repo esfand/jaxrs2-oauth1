@@ -40,26 +40,29 @@
 
 package com.sun.jersey.oauth.server;
 
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.core.spi.component.ComponentScope;
-import com.sun.jersey.core.spi.component.ProviderServices;
 import com.sun.jersey.oauth.server.spi.OAuthProvider;
-import com.sun.jersey.spi.inject.ConstrainedTo;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.InjectableProvider;
-import com.sun.jersey.spi.inject.ServerSide;
+//import com.sun.jersey.core.spi.component.ComponentContext;
+//import com.sun.jersey.core.spi.component.ComponentScope;
+//import com.sun.jersey.core.spi.component.ProviderServices;
+//import com.sun.jersey.spi.inject.Injectable;
+//import com.sun.jersey.spi.inject.InjectableProvider;
+//import com.sun.jersey.spi.inject.ServerSide;
+import com.sun.jndi.toolkit.ctx.ComponentContext;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.logging.Logger;
+import javax.ws.rs.ConstrainedTo;  //import com.sun.jersey.spi.inject.ConstrainedTo;
 import javax.ws.rs.core.Context;
+
 
 /** Provider that handles the injection of the application-specific {@link OAuthProvider}
  * implementation.
  *
  * @author Martin Matula
  */
-@ConstrainedTo(ServerSide.class)
-public class OAuthProviderInjectionProvider implements Injectable<OAuthProvider>, InjectableProvider<Context, Type> {
+@ConstrainedTo(ConstrainedTo.Type.SERVER/*ServerSide.class*/)
+public class OAuthProviderInjectionProvider implements Injectable<OAuthProvider>,
+                                                       InjectableProvider<Context, Type> {
     private static final Logger LOGGER = Logger.getLogger(OAuthProviderInjectionProvider.class.getName());
 
     private final OAuthProvider instance;

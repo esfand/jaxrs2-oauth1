@@ -42,10 +42,8 @@ package com.sun.jersey.oauth.server.api;
 
 import com.sun.jersey.oauth.server.spi.OAuthToken;
 import com.sun.jersey.oauth.server.spi.OAuthProvider;
-import com.sun.jersey.spi.container.ContainerRequest;
 import java.util.HashSet;
 import java.util.regex.Pattern;
-import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.oauth.server.NonceManager;
 import com.sun.jersey.oauth.server.OAuthException;
 import com.sun.jersey.oauth.server.OAuthSecurityContext;
@@ -55,13 +53,17 @@ import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
 import com.sun.jersey.oauth.signature.OAuthSignature;
 import com.sun.jersey.oauth.signature.OAuthSignatureException;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext; //import com.sun.jersey.spi.container.ContainerRequest;
+import javax.ws.rs.container.ContainerRequestFilter;  //import com.sun.jersey.spi.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import org.glassfish.jersey.server.ResourceConfig;    //import com.sun.jersey.api.core.ResourceConfig;
+
 
 /** OAuth request filter that filters all requests indicating in the Authorization
  * header they use OAuth. Checks if the incoming requests are properly authenticated
@@ -145,7 +147,7 @@ public class OAuthServerFilter implements ContainerRequestFilter {
         maxAge = intValue(defaultInitParam(rc, PROPERTY_MAX_AGE, "300000")); // 5 minutes
         gcPeriod = intValue(defaultInitParam(rc, PROPERTY_GC_PERIOD, "100")); // every 100 on average
         ignorePathPattern = pattern(defaultInitParam(rc, PROPERTY_IGNORE_PATH_PATTERN, null)); // no pattern
-        optional = rc.getFeature(FEATURE_NO_FAIL);
+        optional = "true".equalsIgnoreCase((String)rc.getProperty/*Feature*/(FEATURE_NO_FAIL));
 
         nonces = new NonceManager(maxAge, gcPeriod);
 
@@ -154,16 +156,17 @@ public class OAuthServerFilter implements ContainerRequestFilter {
     }
 
     @Override
-    public ContainerRequest filter(ContainerRequest request) {
+    //public ContainerRequest filter(ContainerRequest request) {
+    public void filter(ContainerRequestContext request/*Context*/) throws IOException {
         // do not filter requests that do not use OAuth authentication
-        String authHeader = request.getHeaderValue(OAuthParameters.AUTHORIZATION_HEADER);
+        String authHeader = request.getHeaderString/*Value*/(OAuthParameters.AUTHORIZATION_HEADER);
         if (authHeader == null || !authHeader.toUpperCase().startsWith(OAuthParameters.SCHEME.toUpperCase())) {
-            return request;
+            return /*request*/;
         }
 
         // do not filter if the request path matches pattern to ignore
-        if (match(ignorePathPattern, request.getPath())) {
-            return request;
+        if (match(ignorePathPattern, request.getUriInfo().getPath())) {
+            return /*request*/;
         }
 
         OAuthSecurityContext sc = null;
@@ -172,19 +175,20 @@ public class OAuthServerFilter implements ContainerRequestFilter {
             sc = getSecurityContext(request);
         } catch (OAuthException e) {
             if (optional) {
-                return request;
+                return /*request*/;
             } else {
                 throw new WebApplicationException(e.toResponse());
             }
         }
 
         request.setSecurityContext(sc);
-        return request;
+      //return request;
     }
 
-    private OAuthSecurityContext getSecurityContext(ContainerRequest request) throws OAuthException {
-        OAuthServerRequest osr = new OAuthServerRequest(request);
-        OAuthParameters params = new OAuthParameters().readRequest(osr);
+    private OAuthSecurityContext getSecurityContext(ContainerRequestContext request) throws OAuthException {
+        
+        OAuthServerRequest osr    = new OAuthServerRequest(request);
+        OAuthParameters    params = new OAuthParameters().readRequest(osr);
 
         // apparently not signed with any OAuth parameters; unauthorized
         if (params.size() == 0) {
@@ -216,7 +220,7 @@ public class OAuthServerFilter implements ContainerRequestFilter {
                 throw newUnauthorizedException();
             }
             nonceKey = "c:" + consumerKey;
-            sc = new OAuthSecurityContext(consumer, request.isSecure());
+            sc = new OAuthSecurityContext(consumer, request.getSecurityContext().isSecure());
         } else {
             OAuthToken accessToken = provider.getAccessToken(token);
             if (accessToken == null) {
@@ -230,7 +234,7 @@ public class OAuthServerFilter implements ContainerRequestFilter {
 
             nonceKey = "t:" + token;
             secrets.tokenSecret(accessToken.getSecret());
-            sc = new OAuthSecurityContext(accessToken, request.isSecure());
+            sc = new OAuthSecurityContext(accessToken, request.getSecurityContext().isSecure());
         }
 
         if (!verifySignature(osr, params, secrets)) {

@@ -41,8 +41,7 @@
 package com.sun.jersey.oauth.server.api.resources;
 
 import com.sun.jersey.oauth.server.OAuthServerRequest;
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.api.representation.Form;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.Context;
@@ -60,8 +59,11 @@ import com.sun.jersey.oauth.server.spi.OAuthConsumer;
 import com.sun.jersey.oauth.server.spi.OAuthProvider;
 import com.sun.jersey.oauth.server.spi.OAuthToken;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Form;          //import com.sun.jersey.api.representation.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
+//import com.sun.jersey.api.core.HttpContext;
 
 /**
  * Resource handling access token requests.
@@ -82,10 +84,10 @@ public class AccessTokenRequest {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response postAccessTokenRequest(@Context HttpContext hc, @Context Request req) {
+    public Response postAccessTokenRequest(/*@Context HttpContext hc,*/ @Context ContainerRequestContext req) {
         try {
             boolean sigIsOk = false;
-            OAuthServerRequest request = new OAuthServerRequest(hc.getRequest());
+            OAuthServerRequest request = new OAuthServerRequest(req/*hc.getRequest()*/);
             OAuthParameters params = new OAuthParameters();
             params.readRequest(request);
 
@@ -131,10 +133,9 @@ public class AccessTokenRequest {
             }
 
             // Preparing the response.
-            Form resp = new Form();
-            resp.putSingle(OAuthParameters.TOKEN, at.getToken());
-            resp.putSingle(OAuthParameters.TOKEN_SECRET, at.getSecret());
-            resp.putAll(at.getAttributes());
+            Form resp = new Form(at.getAttributes());
+            resp.param(OAuthParameters.TOKEN, at.getToken());
+            resp.param(OAuthParameters.TOKEN_SECRET, at.getSecret());
             return Response.ok(resp).build();
         } catch (OAuthException e) {
             // map the exception to avoid having to add the mapper to the providers

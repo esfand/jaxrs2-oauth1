@@ -40,9 +40,9 @@
 
 package com.sun.jersey.oauth.server.api.resources;
 
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.api.representation.Form;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+//import com.sun.jersey.api.core.HttpContext;
+
+//import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
 import com.sun.jersey.oauth.signature.OAuthSignature;
@@ -52,6 +52,8 @@ import com.sun.jersey.oauth.server.OAuthServerRequest;
 import com.sun.jersey.oauth.server.spi.OAuthConsumer;
 import com.sun.jersey.oauth.server.spi.OAuthProvider;
 import com.sun.jersey.oauth.server.spi.OAuthToken;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.Context;
@@ -59,7 +61,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.AbstractMultivaluedMap;
+import javax.ws.rs.core.Form; //import com.sun.jersey.api.representation.Form;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 /**
@@ -72,7 +78,8 @@ import javax.ws.rs.core.Response;
 @Path("/requestToken")
 public class RequestTokenRequest {
     private @Context OAuthProvider provider;
-    private @Context HttpContext hc;
+  //private @Context HttpContext   hc;
+    private @Context ContainerRequestContext req;
     /**
      * POST method for creating a request for a Request Token
      * @param content representation for the resource
@@ -83,7 +90,7 @@ public class RequestTokenRequest {
     @Produces("application/x-www-form-urlencoded")
     public Response postReqTokenRequest() {
         try {
-            OAuthServerRequest request = new OAuthServerRequest(hc.getRequest());
+            OAuthServerRequest request = new OAuthServerRequest(req/*hc.getRequest()*/);
             OAuthParameters params = new OAuthParameters();
             params.readRequest(request);
 
@@ -114,7 +121,7 @@ public class RequestTokenRequest {
                 throw new OAuthException(Response.Status.BAD_REQUEST, null);
             }
 
-            MultivaluedMap<String, String> parameters = new MultivaluedMapImpl();
+            MultivaluedMap<String, String> parameters = new AbstractMultivaluedMap<String, String>(new HashMap<String,List<String>>()){};
             for (String n : request.getParameterNames()) {
                 parameters.put(n, request.getParameterValues(n));
             }
@@ -122,9 +129,9 @@ public class RequestTokenRequest {
             OAuthToken rt = provider.newRequestToken(consKey, params.getCallback(), parameters);
 
             Form resp = new Form();
-            resp.putSingle(OAuthParameters.TOKEN, rt.getToken());
-            resp.putSingle(OAuthParameters.TOKEN_SECRET, rt.getSecret());
-            resp.putSingle(OAuthParameters.CALLBACK_CONFIRMED, "true");
+            resp.param(OAuthParameters.TOKEN, rt.getToken());
+            resp.param(OAuthParameters.TOKEN_SECRET, rt.getSecret());
+            resp.param(OAuthParameters.CALLBACK_CONFIRMED, "true");
             return Response.ok(resp).build();
         } catch (OAuthException e) {
             return e.toResponse();
